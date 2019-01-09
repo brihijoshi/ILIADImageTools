@@ -3,7 +3,7 @@ This is a part of the my Independent Project on Computer Music to develop Interd
 
 ## Pre-work
 
-1. <TO FILL>
+1. _TO ADD_
 
 ## Week 1 -- 7th Jan to 13th Jan 2019
 
@@ -22,7 +22,7 @@ This is a part of the my Independent Project on Computer Music to develop Interd
 1. Sanity testing of this code
 2. Send longer streams of data, like Image pixel arrays
 
-## Links Used 
+### Links Used 
 
 1. https://mido.readthedocs.io/en/latest/
 2. https://carlcolglazier.com/notes/acoustics/midi-in-supercollider/
