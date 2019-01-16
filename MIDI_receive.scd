@@ -4,13 +4,17 @@ MIDIClient.sources;
 
 MIDIdef.noteOn(\print, {arg val, num, chan, src; [src,chan, num, val].postln});*/
 MIDIClient.init;
-MIDIIn.connect(0,MIDIClient.sources[0]);
+// MIDIIn.connect(0,MIDIClient.sources[0]);
+MIDIIn.connectAll;
+MIDIClient.externalSources;
 
 (
 	m = MIDIFunc.noteOn({ |vel, num|
 		"note % @ velocity %\n".postf(num, vel);
 	});
-)
+);
+
+MIDIClient.restart;
 
 
 /*(
