@@ -3,12 +3,18 @@
 MIDIClient.sources;
 
 MIDIdef.noteOn(\print, {arg val, num, chan, src; [src,chan, num, val].postln});*/
+MIDIClient.init;
+MIDIIn.connect(0,MIDIClient.sources[0]);
 
 (
-var notes, on, off;
+	m = MIDIFunc.noteOn({ |vel, num|
+		"note % @ velocity %\n".postf(num, vel);
+	});
+)
 
-MIDIClient.init;
-MIDIIn.connectAll;
+
+/*(
+var notes, on, off;
 
 notes = Array.newClear(128);    // array has one slot per possible MIDI note
 
@@ -25,4 +31,7 @@ q = { on.free; off.free; };
 )
 
 // when done:
-q.value;
+q.value;*/
+
+
+
