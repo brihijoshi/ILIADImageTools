@@ -9,6 +9,7 @@ This is a part of the my Independent Project on Computer Music to develop Interd
 - [x] Use a single script, not an interactive script
 - [x] Solve Multiple output problem
 - [ ] Find a better way of keeping the script alive, rather than an infinite while. (Probably a flask app?!)
+- [ ] Find alternative ways to send Image data over MIDI
 
 ## Pre-work
 
@@ -42,6 +43,20 @@ This is a part of the my Independent Project on Computer Music to develop Interd
 ### Issues this week
 1. How to send Pixel Data? Since MIDI can only support values from 0-127 and pixels require values from 0-255, should I send one half of the data via the 'Note' section and the other half via the 'Velocity' section?
 2. Virtual Ports via code can only be used if used on an interactive Python Shell, not via a single script. (__SOLVED__)
+
+## Week 3 -- 21st Jan to 27th Jan
+
+1. Researched on what parameters of the data are controllable by the user
+
+### UI Design
+
+List of controllable parameters -
+1. The type of data read (CSV, Pixels, Video, Audio, etc)
+2. Speed at which the user wants to send the data (Sleep time)
+3. What kind of preprocessing does the user want to do 
+	1. Individual parameters for every preprocessing style that the user chooses
+4. Any external port that the user wants to connect to
+
 
 
 
