@@ -13,5 +13,4 @@ while response!=None:
 	for i in range(5):
 		outport.send(mido.Message('note_on', note=60+i))
 
-	
 outport.close()
