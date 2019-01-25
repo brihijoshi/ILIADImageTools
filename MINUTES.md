@@ -9,3 +9,4 @@ Minutes of the meeting 25/1/19 --
 6. TASK FOR NEXT WEEK -
 	1. Multiple streams of data
 	2. MIDI - Same stream, same channel
+	3. Ideas on how to deal with high amount of datasets
