@@ -71,6 +71,7 @@ Solved some issues in this week's meeting -
 
 1. Sending single channel data with virtual port is a challenge. Currently trying to overcome it.
 2. I still haven't figured out how to connect reaper to a virtual port.
+3. How to automatically enable new MIDI ports in Reaper?
 
 
 

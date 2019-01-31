@@ -1,4 +1,5 @@
 import mido
+import time
 # port =mido.open_output('IAC Driver Bus 1')
 
 # for i in range(5):
@@ -12,5 +13,8 @@ while response!=None:
 	print(mido.get_input_names())
 	for i in range(5):
 		outport.send(mido.Message('note_on', note=60+i))
+		outport.send(mido.Message('note_off', note=60+i))
+		time.sleep(2)
+
 
 outport.close()
