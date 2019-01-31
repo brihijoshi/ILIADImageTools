@@ -8,8 +8,9 @@ This is a part of the my Independent Project on Computer Music to develop Interd
 - [ ] Add Pre-work done in December
 - [x] Use a single script, not an interactive script
 - [x] Solve Multiple output problem
-- [ ] Find a better way of keeping the script alive, rather than an infinite while. (Probably a flask app?!)
-- [ ] Find alternative ways to send Image data over MIDI
+- [x] Find a better way of keeping the script alive, rather than an infinite while. (Probably a flask app?!)
+- [x] Find alternative ways to send Image data over MIDI
+- [ ] Add template of UI design to this repo
 
 ## Pre-work
 
@@ -56,6 +57,22 @@ List of controllable parameters -
 3. What kind of preprocessing does the user want to do 
 	1. Individual parameters for every preprocessing style that the user chooses
 4. Any external port that the user wants to connect to
+
+Solved some issues in this week's meeting - 
+1. A Desktop app running will keep the script alive. Use Kivy (https://kivy.org/#home) for the same.
+2. Alternative way to send image data -- Normalise it. If not, distribute the data along different streams
+
+## Week 4 -- 27th Jan to 2nd Feb
+
+1. Started sending basic MIDI data from Python to Reaper. 
+2. Read up on MIDI basics, will expand over the details before the week starts.
+
+### Issues
+
+1. Sending single channel data with virtual port is a challenge. Currently trying to overcome it.
+2. I still haven't figured out how to connect reaper to a virtual port.
+
+
 
 
 
