@@ -1,4 +1,4 @@
-Minutes of the meeting 25/1/19 --
+## Minutes of the meeting 25/1/19 --
 
 1. Normalise all the values between 0-1
 2. Rhythmic Pattern of sending option
@@ -10,3 +10,41 @@ Minutes of the meeting 25/1/19 --
 	1. Multiple streams of data
 	2. MIDI - Same stream, same channel
 	3. Ideas on how to deal with high amount of datasets
+
+## Minutes of the meeting 1/2/19 --
+
+Steps for lab - 
+1. White switch (main power on),then the speakers, then the red connector thingy
+2. Focusrite scarlett 18i 20 (18 inputs 20 outputs)
+3. Device settings (Monitor control, set to All)
+4. Rest of the stuff to be default
+5. Output Routing
+	1. Each monitor to be connected to mono playbacks of the same number
+	2. Monitor controls change the volume of everything together
+
+For reaper -
+1. Option > preferances > Audio/Device (Focusrite USB ASIO)
+2. Output range set to 8.
+3. Routing icon (Deactivate the master set, which will mix everything down to the stereo)
+4. We need mono for each and every channel
+
+Plugins - 
+1. ReLearn - Helgo Boss
+	1. Add mapping
+	2. Edit
+	3. CC Id selection and FX (SpatGri)
+	4. Mappings like Min and Max
+	5. Check what s is 
+2. SpatGri
+3. GRM is Paid (only 1 min is there)
+	1. Fun fact -- GRM is the first studio in France where this kind of thing happend
+
+Speaker Setup 
+1. French 8 (In the UK)
+2. US uses the French style 
+
+
+For the issues -- 
+1. Write that question on the message boards, the developers or write a script.
+
+

@@ -5,7 +5,8 @@ import time
 # for i in range(5):
 # 	port.send(mido.Message('note_on', note=50+i))
 
-outport = mido.open_output('New Port', virtual=True, autoreset=True)
+outport = mido.open_output('New', virtual=True, autoreset=True)
+print(mido.get_output_names())
 
 response = 'yes'
 while response!=None:
@@ -14,7 +15,6 @@ while response!=None:
 	for i in range(5):
 		outport.send(mido.Message('note_on', note=60+i))
 		outport.send(mido.Message('note_off', note=60+i))
-		time.sleep(2)
-
+		time.sleep(1)
 
 outport.close()
