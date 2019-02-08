@@ -12,9 +12,10 @@ response = 'yes'
 while response!=None:
 	response = input()
 	print(mido.get_input_names())
+	v = float(input())
 	for i in range(5):
 		outport.send(mido.Message('note_on', note=60+i))
 		outport.send(mido.Message('note_off', note=60+i))
-		time.sleep(1)
+		time.sleep(v)
 
 outport.close()

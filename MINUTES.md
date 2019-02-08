@@ -48,3 +48,11 @@ For the issues --
 1. Write that question on the message boards, the developers or write a script.
 
 
+## Minutes of the Meeting 8/2/19
+
+1. Sir initially explains the hierarchy of transfer
+	1. Ports
+	2. Channel
+	3. Different IDs per channel (the CC values)
+
+

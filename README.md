@@ -11,6 +11,7 @@ This is a part of the my Independent Project on Computer Music to develop Interd
 - [x] Find a better way of keeping the script alive, rather than an infinite while. (Probably a flask app?!)
 - [x] Find alternative ways to send Image data over MIDI
 - [ ] Add template of UI design to this repo
+- [ ] Read MIDI data in DETAIL!
 
 ## Pre-work
 
@@ -72,6 +73,21 @@ Solved some issues in this week's meeting -
 1. Sending single channel data with virtual port is a challenge. Currently trying to overcome it.
 2. I still haven't figured out how to connect reaper to a virtual port.
 3. How to automatically enable new MIDI ports in Reaper?
+
+## Week 5 -- 3rd Feb to 10th Feb
+
+1. Started reading MIDI data in detail, will take more time.
+2. Multiple channel data sending in Reaper is on. However, it is taking more time than expected, so moved on to controlling sleep time dynamically
+3. Started looking into how to control Sleep time dynamically.
+4. Sleep time cannot be controlled dynamically, however once the batch of data is sent, it can be changed and accordingly set.
+5. Initially tried looking at how notes are played in Mido and tried to set the speed of the data transfer using internal Mido functions, but that doesn't _seem possible_ at the moment.
+
+### Issues 
+1. Sleep time cannot be changed dynamically. Need to check how to send data in a fast and slow 
+
+## Week 5 -- 10th Feb to 17th Feb
+
+__NO WORK, AT WSDM__
 
 
 
