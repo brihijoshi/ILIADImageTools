@@ -54,5 +54,13 @@ For the issues --
 	1. Ports
 	2. Channel
 	3. Different IDs per channel (the CC values)
+2. Sir explains ReaLearn and how to change the mapping for these and then details
+3. Three different ideas
+	1. Note-on and note-off
+	2. CCes
+	3. Tuples
+4. Just In Time programming paradigm (for fixing the time sleep issue)
+5. Just for now, look at CC and check for 3 channels
+6. Generative Music/ Algorithmic Music (change a few more pieces) 
 
 
