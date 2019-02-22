@@ -94,6 +94,7 @@ __NO WORK, AT WSDM__
 1. Started installing ReaLearn, then checked out how to use CC values with ReaLearn VST
 2. Succesfully sent CC values to Reaper - Yayy!
 3. Downloaded MIDI Monitor by Snoize to monitor what kind of MIDI data is being sent.
+4. MIDI purpose lists here - http://nickfever.com/music/midi-cc-list
 
 
 
