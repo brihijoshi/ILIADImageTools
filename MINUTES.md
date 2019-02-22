@@ -63,4 +63,11 @@ For the issues --
 5. Just for now, look at CC and check for 3 channels
 6. Generative Music/ Algorithmic Music (change a few more pieces) 
 
+## Minutes of the Meeting 22/2/19
+
+1. Check how to catch live data in the screen (MIDI-Ox for Windows)
+	1. SNOIZE for Mac -- MIDIMonitor
+2. Check out whether to send sequential data to the MIDI.
+3. Send only single value as of now.
+
 

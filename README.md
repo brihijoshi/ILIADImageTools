@@ -89,6 +89,10 @@ Solved some issues in this week's meeting -
 
 __NO WORK, AT WSDM__
 
+## Week 6 -- 18th Feb to 24th Feb
+
+1. Started installing ReaLearn, then checked out how to use CC values with ReaLearn VST
+
 
 
 
