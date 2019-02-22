@@ -69,5 +69,7 @@ For the issues --
 	1. SNOIZE for Mac -- MIDIMonitor
 2. Check out whether to send sequential data to the MIDI.
 3. Send only single value as of now.
+4. Now, take any audio file and control the Reverb on it using Image data
+5. After that, can do some experiments using QNeo
 
 

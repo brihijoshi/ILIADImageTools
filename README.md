@@ -92,6 +92,9 @@ __NO WORK, AT WSDM__
 ## Week 6 -- 18th Feb to 24th Feb
 
 1. Started installing ReaLearn, then checked out how to use CC values with ReaLearn VST
+2. Succesfully sent CC values to Reaper - Yayy!
+3. Downloaded MIDI Monitor by Snoize to monitor what kind of MIDI data is being sent.
+
 
 
 

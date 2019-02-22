@@ -17,8 +17,8 @@ while response!=None:
 	print(mido.get_input_names())
 	v = float(input())
 	for i in range(5):
-		outport.send(mido.Message('control_change', channel=1, control=16, data=(3)))
-		outport.send(mido.Message('control_change', channel=1, control=17, data=(1)))
+		outport.send(mido.Message('control_change', channel=1, control=16, value=3+i))
+		outport.send(mido.Message('control_change', channel=1, control=17, value=1+i))
 		time.sleep(v)
 
 outport.close()
