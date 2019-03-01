@@ -15,10 +15,16 @@ response = 'yes'
 while response!=None:
 	response = input()
 	print(mido.get_input_names())
+
+	# Select at what time interval should we send the CC messages -- Sleep time
+
 	v = float(input())
-	for i in range(5):
-		outport.send(mido.Message('control_change', channel=1, control=16, value=3+i))
-		outport.send(mido.Message('control_change', channel=1, control=17, value=1+i))
+
+	# Will send 10 sets of CC messages at once
+
+	for i in range(10):
+		outport.send(mido.Message('control_change', channel=1+1, control=16, value=3+i))
+		outport.send(mido.Message('control_change', channel=1+1, control=17, value=1+i))
 		time.sleep(v)
 
 outport.close()

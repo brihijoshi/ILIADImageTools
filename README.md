@@ -97,6 +97,14 @@ __NO WORK, AT WSDM__
 4. MIDI purpose lists here - http://nickfever.com/music/midi-cc-list
 
 
+## Week 7 -- 25th Feb - 3rd Mar
+
+1. Succesfully sent CC messages to change reverb values on the fly.
+2. Tries JIT with - http://numba.pydata.org/
+3. Unable to figure out why channel values are different
+	1. Its because mido is 0 indexed.
+
+
 
 
 

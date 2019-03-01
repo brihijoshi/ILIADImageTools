@@ -72,4 +72,24 @@ For the issues --
 4. Now, take any audio file and control the Reverb on it using Image data
 5. After that, can do some experiments using QNeo
 
+## Minutes of the Meeting 1/3/19
+
+1. Add every stream from 0 to 1
+	1. Makes modules interchangeable
+	2. Add the changes realtime
+2. GUI clock
+3. Check out small clock changes in test3.py (try to make the change live)
+	1. Set the loop to 1
+	2. change slider values and dynamically send the data
+4. Before next week, try controlling the Reverb of an audio
+5. Our ears are most sensitive to pitch
+	1. Try controlling the pitch
+	2. Find a Free VST that can change the Sine wave, put it in the Loop and try changing the pitch
+	3. ReaPitch changes
+	4. Tone oscillators
+	5. Just one parameter of this pitch
+	6. Crystal clear, is exactly what we can hear with the sine waves
+6. Tried the Panning with the lab
+7. Trying looking up Dr. Norah Lorway (Check her out!)
+
 
