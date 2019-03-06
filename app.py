@@ -10,6 +10,7 @@ from kivy.uix.button import Button
 from kivy.clock import Clock
 from functools import wraps
 import mido
+import random
 
 
 FLOAT_LAYOUT = FloatLayout(size=(300, 300))
@@ -24,12 +25,12 @@ s = Slider(min=0, max=5, value=25)
 outport = mido.open_output('New', virtual=True, autoreset=True)
 run_dict = {'v':5}
 
-def send_RGB(r,g,b):
+def send_RGB(r):
 
 	# Just sending the MIDO messages
-	outport.send(mido.Message('control_change', channel=1+1, control=16, value=r))
-	outport.send(mido.Message('control_change', channel=1+1, control=17, value=g))
-	outport.send(mido.Message('control_change', channel=1+1, control=17, value=b))
+	outport.send(mido.Message('control_change', channel=1-1, control=16, value=r))
+	# outport.send(mido.Message('control_change', channel=1+1, control=17, value=g))
+	# outport.send(mido.Message('control_change', channel=1+1, control=17, value=b))
 
 
 def yield_to_sleep(func):
@@ -51,7 +52,10 @@ def yield_to_sleep(func):
 def read_image():
     for i in range(10000):
         yield run_dict["v"]  # use yield to "sleep"
-        send_RGB(10, 20, 30)
+        r = random.randint(10, 90)
+        # g = random.randint(, 40)
+        # b = random.randint(30, 50)
+        send_RGB(r)
 
 
 def OnSliderValueChange(instance,value):
@@ -63,9 +67,7 @@ class app(App):
 
 	def build(self):
 		FLOAT_LAYOUT.add_widget(s)
-
 		s.bind(value=OnSliderValueChange)
-
 		read_image()
 
 		return FLOAT_LAYOUT
