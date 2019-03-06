@@ -104,6 +104,18 @@ __NO WORK, AT WSDM__
 3. Unable to figure out why channel values are different
 	1. Its because mido is 0 indexed.
 
+## Week 8 -- 4th Mar - 10th Mar
+
+1. Started working with Kivy app
+	1. Succesfully created a slider which can dynamically print values on the screen
+2. I can't use time.sleep() because it will hang the whole UI :(
+3. Started to check out how kivy's inbuilt Clock() looks like
+4. Kivy.clock() works!
+	1. Added a generator function that initiates the next iteration only after a sleep time
+	2. Then using Kivy clock scheduler to schedule the next clock instance
+
+
+
 
 
 
