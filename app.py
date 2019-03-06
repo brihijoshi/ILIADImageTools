@@ -8,6 +8,7 @@ from kivy.uix.floatlayout import  FloatLayout
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.clock import Clock
+from functools import wraps
 import mido
 
 
@@ -47,7 +48,7 @@ def yield_to_sleep(func):
 
 
 @yield_to_sleep  # use this decorator to cast 'yield' to non-blocking sleep
-def test_function():
+def read_image():
     for i in range(10000):
         yield run_dict["v"]  # use yield to "sleep"
         send_RGB(10, 20, 30)
@@ -64,6 +65,8 @@ class app(App):
 		FLOAT_LAYOUT.add_widget(s)
 
 		s.bind(value=OnSliderValueChange)
+
+		read_image()
 
 		return FLOAT_LAYOUT
 
