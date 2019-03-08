@@ -105,7 +105,7 @@ For the issues --
 7. If we demo something, it should be crystal clear - as to what is happening
 8. What conversion of data should we be needed
 	1. The additional technical deets should be influenced by the creative need
-9. Check Native Instruments VST
+9. Check Native Instruments VST - Kontakt
 
 
 
