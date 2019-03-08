@@ -92,4 +92,20 @@ For the issues --
 6. Tried the Panning with the lab
 7. Trying looking up Dr. Norah Lorway (Check her out!)
 
+## Minutes of the Meeting 8/3/19
+
+1. Working Demo for a presentation
+2. Start with the UI
+	1. Combine with the Video version of the UI
+3. Microfone real-time live input (with Reaper) cool idea!!
+4. How does it effect other distortions (like guitar)
+5. Gave sir the idea of non-linear mapping for music using Deep Learning
+	1. Will be done later
+6. Explore Reaper to test which parameters to use in which VSTs
+7. If we demo something, it should be crystal clear - as to what is happening
+8. What conversion of data should we be needed
+	1. The additional technical deets should be influenced by the creative need
+9. Check Native Instruments VST
+
+
 
