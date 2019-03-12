@@ -107,5 +107,18 @@ For the issues --
 	1. The additional technical deets should be influenced by the creative need
 9. Check Native Instruments VST - Kontakt
 
+## Minutes of the Meeting 12/3/19
+
+1. Intermediate meeting called by Sir
+2. A functional UI with basic details
+3. By the end of the term - 
+	1. UI
+	2. Documentation
+	3. Website
+		1. Downloadable version
+		2. Demo version online
+	4. (??) Lab Website
+
+
 
 
