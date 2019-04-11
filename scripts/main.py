@@ -11,9 +11,13 @@ class LoadDialog(FloatLayout):
     load = ObjectProperty(None)
     cancel = ObjectProperty(None)
 
+class SendData(FloatLayout):
+    pass
+
+
 
 class Root(FloatLayout):
-    loadfile = ObjectProperty(None)
+    # loadfile = ObjectProperty(None)
     # savefile = ObjectProperty(None)
     # text_input = ObjectProperty(None)
 

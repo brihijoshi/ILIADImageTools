@@ -1,5 +1,4 @@
 #:kivy 1.1.0
-
 Root:
     image: image
 
@@ -15,9 +14,6 @@ Root:
             Image:
                 id: image
                 source: ''
-        BoxLayout:
-            
-
 <LoadDialog>:
     BoxLayout:
         size: root.size
@@ -32,7 +28,15 @@ Root:
             Button:
                 text: "Cancel"
                 on_release: root.cancel()
-
             Button:
                 text: "Load"
                 on_release: root.load(filechooser.path, filechooser.selection)
+
+<SendData>:
+    size_hint: (0.1,0.1)
+    Button:
+        pos: 100,100
+        text: "SendData"
+        color: 1,0,0,1
+        on_press: print('Workinggg!')
+
