@@ -114,6 +114,11 @@ __NO WORK, AT WSDM__
 	1. Added a generator function that initiates the next iteration only after a sleep time
 	2. Then using Kivy clock scheduler to schedule the next clock instance
 
+## Week 9, 10, 11 
+
+1. Working on combining Video-tools to Image-tools and add more workable features
+
+
 
 
 
