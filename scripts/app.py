@@ -17,7 +17,7 @@ from kivy.graphics.texture import Texture
 from kivy.core.image import Image as CoreImage
 from kivy.uix.spinner import Spinner
 from kivy.graphics import *
-from skimage.transform import swirl
+from skimage.transform import swirl, PiecewiseAffineTransform, warp
 from skimage import util
 from io import BytesIO
 import matplotlib.image as mpimg
@@ -39,6 +39,8 @@ run_dict = {'v':0}
 image_file_dict = {'image_file':"", 'orig_image':""}
 channel_dict = {'channel':1}
 cc_dict = {'cc':16}
+
+logo = Image(source='../assets/img_tools_logo.png',pos_hint={'x': 0.19, 'y': 0.50},keep_ratio=True, size_hint=(0.20, 0.10))
 
 
 TEMP_PATH = "../assets/"
@@ -99,7 +101,7 @@ transform_dropdown = Spinner(
 	# default value shown
 	text='Select Transform',
 	# available values
-	values=('Swirl','Nothing'),
+	values=('Swirl','Wave'),
 	# just for positioning in our example
 	pos_hint={'x': 0.32, 'y': 0.21}, size_hint=(.15, .10))
 
@@ -108,6 +110,10 @@ def OnTransformDropdownSelect(spinner, text):
 
 		image_to_swirl = image_file_dict['image_file']
 
+		if len(image_to_swirl.shape) ==2:
+
+			image_to_swirl = gray2rgb(image_to_swirl)
+
 		swirled = swirl(image_to_swirl, rotation=0, strength=10, radius=400)
 
 		image_file_dict['image_file'] = swirled
@@ -115,6 +121,43 @@ def OnTransformDropdownSelect(spinner, text):
 		
 		image_texture = Texture.create(size=(swirled.shape[1], swirled.shape[0]),colorfmt='rgb')
 		image_texture.blit_buffer(np.float32(np.flip(swirled,axis=0).ravel()), colorfmt='rgb', bufferfmt='float')
+		disp_img.texture = image_texture
+
+
+	if text == 'Wave':
+
+		image = image_file_dict['image_file']
+
+		if len(image.shape) == 2:
+
+			image = gray2rgb(image)
+
+		rows, cols = image.shape[0], image.shape[1]
+
+		src_cols = np.linspace(0, cols, 20)
+		src_rows = np.linspace(0, rows, 10)
+		src_rows, src_cols = np.meshgrid(src_rows, src_cols)
+		src = np.dstack([src_cols.flat, src_rows.flat])[0]
+
+		# add sinusoidal oscillation to row coordinates
+		dst_rows = src[:, 1] - np.sin(np.linspace(0, 3 * np.pi, src.shape[0])) * 50
+		dst_cols = src[:, 0]
+		dst_rows *= 1.5
+		dst_rows -= 1.5 * 50
+		dst = np.vstack([dst_cols, dst_rows]).T
+
+
+		tform = PiecewiseAffineTransform()
+		tform.estimate(src, dst)
+
+		out_rows = image.shape[0] - 1.5 * 50
+		out_cols = cols
+		out = warp(image, tform, output_shape=(out_rows, out_cols))
+
+		image_file_dict['image_file'] = out
+
+		image_texture = Texture.create(size=(out.shape[1], out.shape[0]),colorfmt='rgb')
+		image_texture.blit_buffer(np.float32(np.flip(out,axis=0).ravel()), colorfmt='rgb', bufferfmt='float')
 		disp_img.texture = image_texture
 
 
@@ -215,12 +258,12 @@ def read_image():
 	# img = mpimg.imread(image_chosen_path)
 	# print('IMAGE READ')
 	temp = image_file_dict['image_file']
-	print((temp == image_file_dict['orig_image']))
+	print(temp)
 	if len(temp.shape) == 3:
-		if (temp == image_file_dict['orig_image']).all() == False:
+		if type(temp[0,0,0]) == np.float64:
 			temp = temp * 255
 	elif len(temp.shape) == 2:
-		if temp != image_file_dict['orig_image']:
+		if type(temp[0,0]) == np.float64:
 			temp = temp * 255
 
 	
@@ -261,6 +304,7 @@ def OnSendButtonPressed(instance):
 def OnResetButtonPressed(instance):
 
 	disp_img.texture = orig_image_texture
+
 	cp_inverted_button.active = False
 	cp_grayscale_button.active = False
 	cp_animated_button.active = False
@@ -549,6 +593,7 @@ class app(App):
 
 		disp_img = Image(source='../assets/init_back.jpg',pos_hint={'x': 0.01, 'y': 0.58},keep_ratio=True, size_hint=(0.45,0.45))
 		FLOAT_LAYOUT.add_widget(disp_img)
+		FLOAT_LAYOUT.add_widget(logo)
 		FLOAT_LAYOUT.add_widget(file_selector)
 
 		FLOAT_LAYOUT.add_widget(speed_slider)

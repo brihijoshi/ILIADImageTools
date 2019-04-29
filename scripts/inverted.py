@@ -6,20 +6,15 @@ from skimage.io import imread
 from skimage.transform import warp
 from skimage.transform import swirl
 from skimage import util
+from skimage.transform import PiecewiseAffineTransform, warp
 
 
-img = imread('coffee.png')
+image = imread('coffee.png')
 
-img_gray = color.rgb2gray(img)
+hsv = color.rgb2hsv(image)
+hsv = color.hsv2rgb(hsv)
 
-print(img_gray)
+print(type(hsv[0,0,0]))
 
-rgb = color.gray2rgb(img_gray)
-hsv = color.rgb2hsv(rgb)
-print(hsv)
-hsv[:, :, 1] = 1
-print(hsv)
-print(color.hsv2rgb(hsv))
-
-io.imshow(color.hsv2rgb(hsv))
+io.imshow(out)
 io.show()
