@@ -15,18 +15,30 @@ from kivy.uix.image import Image
 from kivy.uix.checkbox import CheckBox
 from kivy.graphics.texture import Texture
 from kivy.core.image import Image as CoreImage
+from kivy.uix.spinner import Spinner
 from io import BytesIO
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
 from skimage import io, segmentation
-from skimage.color import convert_colorspace, rgba2rgb, hsv2rgb, rgb2gray, label2rgb
+from skimage.color import convert_colorspace, rgba2rgb, hsv2rgb, rgb2gray, label2rgb, rgb2hsv
 from skimage.future import graph
 from PIL import Image as PImage
 from functools import wraps
 from array import array
 import mido
 import random
+import copy
+
+
+
+outport = mido.open_output('ILIAD - ImgTools', virtual=True, autoreset=True)
+run_dict = {'v':0}
+image_file_dict = {'image_file':"", 'orig_image':""}
+channel_dict = {'channel':1}
+cc_dict = {'cc':16}
+
+
 
 TEMP_PATH = "../assets/"
 
@@ -57,6 +69,8 @@ send_status_label = Label(text='Press Send', font_size=15, pos_hint={'x': 0.87, 
 
 file_selector = Button(text = 'Select Image', pos_hint={'x': 0.01, 'y': 0.50},size_hint=(0.12, 0.07))
 
+reset_button = Button(text='Reset', font_size=14, pos_hint={'x': 0.87, 'y': 0.15},size_hint=(0.12, 0.07))
+
 # Buttons for the colour preference image-
 
 cp_coloured_button = CheckBox()
@@ -81,32 +95,67 @@ cp_inverted_button.group = 'colour_pref'
 cp_inverted_button.active = False
 cp_inverted_button.color = [128, 128, 128, 1]
 
+channel_values = []
+for i in range(1,17):
+	channel_values.append("Channel "+str(i))
 
-"""Colour Conversions"""
+channel_dropdown = Spinner(
+	# default value shown
+	text='Select Channel',
+	# available values
+	values=tuple(channel_values),
+	# just for positioning in our example
+	pos_hint={'x': 0.50, 'y': 0.75}, size_hint=(.2, .1))
 
-# hue_slider = Slider(min=0,
-# 		 max=128, 
-# 		 value=0,
-# 		 step = 1,
-# 		 pos_hint={'x': 0.2, 'y': 0.1},
-# 		 size_hint=(.5, .5)
-# 		 )
+def OnChannelDropdownSelect(spinner, text):
+	channel_dict['channel'] = int(text.split(" ")[-1])
+	print(channel_dict['channel'])
+
+channel_values = []
+for i in range(1,17):
+	channel_values.append("Channel "+str(i))
+
+channel_dropdown = Spinner(
+	# default value shown
+	text='Select Channel',
+	# available values
+	values=tuple(channel_values),
+	# just for positioning in our example
+	pos_hint={'x': 0.50, 'y': 0.75}, size_hint=(.2, .1))
+
+def OnChannelDropdownSelect(spinner, text):
+	channel_dict['channel'] = int(text.split(" ")[-1])
+	print(channel_dict['channel'])
 
 
+hue_slider = Slider(min=0,
+		 max=1, 
+		 value= 0,
+		 step = 0.01,
+		 pos_hint={'x': 0.02, 'y': 0.25},
+		 size_hint=(.23, .3)
+		 )
+
+speed_slider_label = Label(text='Time Delay (in seconds) : ', font_size=15, pos_hint={'x': 0.47, 'y': 0.55}, size_hint=(.5, .8))
+speed_slider_value_label = Label(text='0.0', font_size=15, pos_hint={'x': 0.70, 'y': 0.55}, size_hint=(.3, .8), bold=True)
 
 
-outport = mido.open_output('ILIAD - ImgTools', virtual=True, autoreset=True)
-run_dict = {'v':5}
-# global image_file
-
-
-def send_RGB(r, g, b):
+def send_MIDI(r, g=None, b=None):
 	print('ENTERED!!!!')
 
-	# Just sending the MIDO messages
-	outport.send(mido.Message('control_change', channel=1-1, control=16, value=r))
-	outport.send(mido.Message('control_change', channel=1-1, control=17, value=g))
-	outport.send(mido.Message('control_change', channel=1-1, control=18, value=b))
+	channel = channel_dict['channel']
+
+	if g is not None and b is not None:
+
+		# Just sending the MIDO messages
+		outport.send(mido.Message('control_change', channel=channel-1, control=16, value=r))
+		outport.send(mido.Message('control_change', channel=channel-1, control=17, value=g))
+		outport.send(mido.Message('control_change', channel=channel-1, control=18, value=b))
+
+	else:
+
+		outport.send(mido.Message('control_change', channel=channel-1, control=16, value=r))
+
 
 
 def yield_to_sleep(func):
@@ -129,15 +178,30 @@ def read_image():
 	print('ENTERED READ IMAGE')
 	# img = mpimg.imread(image_chosen_path)
 	# print('IMAGE READ')
-	print(image_file)
-	for i in range(len(image_file)):
-		for j in range(len(image_file[0])):
+	temp = image_file_dict['image_file']
+	print((temp == image_file_dict['orig_image']))
+	if len(temp.shape) == 3:
+		if (temp == image_file_dict['orig_image']).all() == False:
+			temp = temp * 100
+	elif len(temp.shape) == 2:
+		if temp != image_file_dict['orig_image']:
+			temp = temp * 100
+
+	
+	print(temp)
+	for i in range(len(temp)):
+		for j in range(len(temp[0])):
 			yield run_dict["v"]  # use yield to "sleep"
-			r = int(image_file[i,j,0])
-			g = int(image_file[i,j,1])
-			b = int(image_file[i,j,2])
-			print(r,g,b)
-			send_RGB(r,g,b)
+			if len(temp.shape) == 3:
+				r = np.clip(int(temp[i,j,0]),0,127)
+				g = np.clip(int(temp[i,j,1]),0,127)
+				b = np.clip(int(temp[i,j,2]),0,127)
+				print(r,g,b)
+				send_MIDI(r,g,b)
+			elif len(temp.shape) == 2:
+				print(temp[i,j])
+				send_MIDI(np.clip(int(temp[i,j]),0,127))
+
 	send_status_label.text = 'Finished!'
 	send_status_label.color = [0,128,0,1]
 
@@ -158,39 +222,10 @@ def OnSendButtonPressed(instance):
 	# print(type(image_file))
 	read_image()
 
-# def OnHueSliderValueChange(instance, value):
-# 	# print('ENTERED')
-# 	# image_shape = image_file.shape
-# 	# image_file_rgb = ""
-# 	# if image_shape[2] == 4:
-# 	# 	image_file_rgb = rgba2rgb(image_file)
-# 	# elif image_shape[2] == 3:
-# 	# 	image_file_rgb = image_file
+def OnResetButtonPressed(instance):
 
+	disp_img.texture = orig_image_texture
 
-# 	# image_file_hsv = convert_colorspace(image_file_rgb, 'RGB', 'HSV')
-
-# 	# print(image_file_hsv[:,:,0])
-
-# 	# image_file_hsv[:,:,0] = image_file_hsv[:,:,0] + value
-
-# 	# print(image_file_hsv[:,:,0])
-
-# 	# np.clip(image_file_hsv,0,1,out=image_file_hsv)
-
-# 	# converted_rgb = hsv2rgb(image_file_hsv)
-
-# 	# io.imsave(TEMP_PATH+'temp.jpg',converted_rgb)
-
-# 	# disp_img.source = TEMP_PATH+'temp.jpg'
-
-# 	# print(disp_img.source)
-
-# 	# print(image_file_hsv.shape)
-
-# 	# print('Conversion done')
-
-# 	# disp_img.color = [value, disp_img.color[1], disp_img.color[2],disp_img.color[3]]
 
 def OnCPColouredButtonPressed(instance, value):
 	print('Pressed colour')
@@ -203,7 +238,9 @@ def OnCPGrayscaleButtonPressed(instance, value):
 
 	image_file_gray = rgb2gray(np.flip(image_file,axis=0)).ravel()
 
-	print(image_file_gray)
+	print('GRASCALE HERE --------')
+
+	image_file_dict['image_file'] = rgb2gray(image_file)
 
 	# # buf1 = cv2.flip(image, 0)
 	# buf = image_file_gray.tostring()
@@ -228,59 +265,63 @@ def OnCPInvertedButtonPressed(instance, value):
 
 
 	def _weight_mean_color(graph, src, dst, n):
-	    """Callback to handle merging nodes by recomputing mean color.
+		"""Callback to handle merging nodes by recomputing mean color.
 
-	    The method expects that the mean color of `dst` is already computed.
+		The method expects that the mean color of `dst` is already computed.
 
-	    Parameters
-	    ----------
-	    graph : RAG
-	        The graph under consideration.
-	    src, dst : int
-	        The vertices in `graph` to be merged.
-	    n : int
-	        A neighbor of `src` or `dst` or both.
+		Parameters
+		----------
+		graph : RAG
+			The graph under consideration.
+		src, dst : int
+			The vertices in `graph` to be merged.
+		n : int
+			A neighbor of `src` or `dst` or both.
 
-	    Returns
-	    -------
-	    data : dict
-	        A dictionary with the `"weight"` attribute set as the absolute
-	        difference of the mean color between node `dst` and `n`.
-	    """
+		Returns
+		-------
+		data : dict
+			A dictionary with the `"weight"` attribute set as the absolute
+			difference of the mean color between node `dst` and `n`.
+		"""
 
-	    diff = graph.node[dst]['mean color'] - graph.node[n]['mean color']
-	    diff = np.linalg.norm(diff)
-	    return {'weight': diff}
+		diff = graph.node[dst]['mean color'] - graph.node[n]['mean color']
+		diff = np.linalg.norm(diff)
+		return {'weight': diff}
 
 
 	def merge_mean_color(graph, src, dst):
-	    """Callback called before merging two nodes of a mean color distance graph.
+		"""Callback called before merging two nodes of a mean color distance graph.
 
-	    This method computes the mean color of `dst`.
+		This method computes the mean color of `dst`.
 
-	    Parameters
-	    ----------
-	    graph : RAG
-	        The graph under consideration.
-	    src, dst : int
-	        The vertices in `graph` to be merged.
-	    """
-	    graph.node[dst]['total color'] += graph.node[src]['total color']
-	    graph.node[dst]['pixel count'] += graph.node[src]['pixel count']
-	    graph.node[dst]['mean color'] = (graph.node[dst]['total color'] /
-	                                     graph.node[dst]['pixel count'])
+		Parameters
+		----------
+		graph : RAG
+			The graph under consideration.
+		src, dst : int
+			The vertices in `graph` to be merged.
+		"""
+		graph.node[dst]['total color'] += graph.node[src]['total color']
+		graph.node[dst]['pixel count'] += graph.node[src]['pixel count']
+		graph.node[dst]['mean color'] = (graph.node[dst]['total color'] /
+										 graph.node[dst]['pixel count'])
 	image_file_inverted = image_file
 
 	labels = segmentation.slic(image_file_inverted, compactness=30, n_segments=400)
 	g = graph.rag_mean_color(image_file_inverted, labels)
 
 	labels2 = graph.merge_hierarchical(labels, g, thresh=35, rag_copy=False,
-	                                   in_place_merge=True,
-	                                   merge_func=merge_mean_color,
-	                                   weight_func=_weight_mean_color)
+									   in_place_merge=True,
+									   merge_func=merge_mean_color,
+									   weight_func=_weight_mean_color)
 
 	out = label2rgb(labels2, image_file_inverted, kind='avg')
 	out = segmentation.mark_boundaries(out, labels2, (0, 0, 0))
+
+	image_file_dict['image_file'] = out
+
+	print(out)
 
 	# image_file_inverted = np.float32(image_file_inverted)
 
@@ -289,6 +330,30 @@ def OnCPInvertedButtonPressed(instance, value):
 	disp_img.texture = image_texture
 
 	print("DONE Inverted")
+
+def TintImageHue(hue):
+	""" Add color of the given hue to an RGB image.
+
+	By default, set the saturation to 1 so that the colors pop!
+	"""
+	temp = image_file_dict['image_file']
+
+	print(temp)
+
+	hsv = rgb2hsv(temp)
+	hsv[:, :, 0] = hue
+
+	print(hsv2rgb(hsv))
+	return hsv2rgb(hsv)
+
+def OnHueSliderChange(instance,value):
+	temp = TintImageHue(value)
+	image_file_dict['image_file'] = temp
+	print(image_file_dict['image_file'])
+
+	image_texture = Texture.create(size=(temp.shape[1], temp.shape[0]),colorfmt='rgb')
+	image_texture.blit_buffer(np.flip(np.float32(temp),axis=0).ravel(), colorfmt='rgb', bufferfmt='float')
+	disp_img.texture = image_texture
 
 
 
@@ -331,7 +396,7 @@ class app(App):
 		self.filechooserpopup.open()
 
 	def select_image_file_path(self, instance):
-		global image_chosen_path, image_file
+		global image_chosen_path, image_file, orig_image_texture
 		# videofilepath = self.filechooserview.selection
 		print(self.filechooserview.selection)
 		if len(self.filechooserview.selection) == 0:
@@ -346,15 +411,19 @@ class app(App):
 		else:
 			image_chosen_path = self.filechooserview.selection[0]
 			image_file = io.imread(image_chosen_path)
+			image_file_dict['image_file']=image_file
+			image_file_dict['orig_image'] = image_file
 			print(image_chosen_path,'HELLLOOOO')
 			# videofilepath = self.filechooserview.selection[0]
 			self.filechooserpopup.dismiss()
 			# FLOAT_LAYOUT.remove_widget(disp_img)
 			disp_img.source = image_chosen_path
+			orig_image_texture = disp_img.texture
 
 			speed_slider.disabled = False
 			send_button.disabled = False
-			# hue_slider.disabled = False
+			reset_button.disabled = False
+			hue_slider.disabled = False
 
 
 	def build(self):
@@ -373,30 +442,37 @@ class app(App):
 		FLOAT_LAYOUT.add_widget(send_button)
 		# FLOAT_LAYOUT.add_widget(stop_button)
 		FLOAT_LAYOUT.add_widget(send_status_label)
+		FLOAT_LAYOUT.add_widget(reset_button)
 
 		# FLOAT_LAYOUT.add_widget(hue_slider)
 
 		FLOAT_LAYOUT.add_widget(cp_coloured_button)
 		FLOAT_LAYOUT.add_widget(cp_grayscale_button)
 		FLOAT_LAYOUT.add_widget(cp_inverted_button)
+		FLOAT_LAYOUT.add_widget(channel_dropdown)
+		FLOAT_LAYOUT.add_widget(hue_slider)
 
 
 		speed_slider.bind(value=OnSpeedSliderValueChange)
 		send_button.bind(on_press=OnSendButtonPressed)
 		# stop_button.bind(on_press=OnStopButtonPressed)
 		file_selector.bind(on_press = self.create_popup)
+		reset_button.bind(on_press = OnResetButtonPressed)
+		channel_dropdown.bind(text=OnChannelDropdownSelect)
 
 		# hue_slider.bind(value=OnHueSliderValueChange)
 
 		speed_slider.disabled = True
 		send_button.disabled = True
-		# hue_slider.disabled = True
+		reset_button.disabled = True
+		hue_slider.disabled = True
 
 		# Colour Preferences buttons
 
 		cp_coloured_button.bind(active=OnCPColouredButtonPressed)
 		cp_grayscale_button.bind(active=OnCPGrayscaleButtonPressed)
 		cp_inverted_button.bind(active=OnCPInvertedButtonPressed)
+		hue_slider.bind(value=OnHueSliderChange)
 
 		
 		return FLOAT_LAYOUT
