@@ -117,6 +117,10 @@ transform_dropdown = Spinner(
 	# just for positioning in our example
 	pos_hint={'x': 0.32, 'y': 0.21}, size_hint=(.15, .10))
 
+cc_chanel_label = Label(text='CC Channel Used', font_size=17, pos_hint={'x': 0.85, 'y': 0.72}, size_hint=(.05, .17))
+cc_chanel_value = Label(text='None', font_size=17, pos_hint={'x': 0.85, 'y': 0.65}, size_hint=(.05, .17))
+
+
 
 
 def OnTransformDropdownSelect(spinner, text):
@@ -315,6 +319,22 @@ def read_image():
 		if type(temp[0,0]) == np.float64:
 			temp = temp * 255
 
+	if tv_props['type'] == 'lin_horizontal':
+
+		if len(temp[0,0]) == 3:
+			cc_chanel_value.text = '\nCC Number 16\nCC Number 17\nCC Number 18'
+		elif len(temp[0,0]) == 2:
+			cc_chanel_value.text = '\nCC Number 16\nCC Number 17'
+		elif len(temp[0,0]) == 1:
+			cc_chanel_value.text = '\nCC Number 16'
+
+	elif tv_props['type'] == 'lin_vertical' or tv_props['type'] == 'block':
+		cc_chanel_value.text = '\nCC Number 16'
+
+
+
+
+
 	# Will check for traversal type here
 
 	if tv_props['type'] == 'lin_horizontal':
@@ -371,6 +391,8 @@ def read_image():
 
 	send_status_label.text = 'Finished!'
 	send_status_label.color = [0,128,0,1]
+	cc_chanel_value.text = 'None'
+
 
 
 
@@ -873,6 +895,8 @@ class ILIADTools(App):
 
 		FLOAT_LAYOUT.add_widget(tv_linear_label)
 		FLOAT_LAYOUT.add_widget(tv_block_label)
+		FLOAT_LAYOUT.add_widget(cc_chanel_label)
+		FLOAT_LAYOUT.add_widget(cc_chanel_value)
 		# FLOAT_LAYOUT.add_widget(mwl_label)
 		# FLOAT_LAYOUT.add_widget(tv_skip_label)
 		# FLOAT_LAYOUT.add_widget(tv_fix)
