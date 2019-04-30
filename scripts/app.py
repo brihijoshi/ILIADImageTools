@@ -1,6 +1,11 @@
 """
 Developed by Brihi Joshi
 """
+from kivy.config import Config
+Config.set('graphics', 'resizable', False)
+# Config.set('graphics', 'width', '600')
+# Config.set('graphics', 'height', '800')
+
 import kivy
 from kivy.app import App
 from kivy.uix.slider import Slider
@@ -17,16 +22,14 @@ from kivy.graphics.texture import Texture
 from kivy.core.image import Image as CoreImage
 from kivy.uix.spinner import Spinner
 from kivy.graphics import *
+from kivy.uix.textinput import TextInput
 from skimage.transform import swirl, PiecewiseAffineTransform, warp
 from skimage import util
-from io import BytesIO
-import matplotlib.image as mpimg
-import matplotlib.pyplot as plt
+from skimage.measure import block_reduce
 import numpy as np
 from skimage import io, segmentation
 from skimage.color import convert_colorspace, rgba2rgb, hsv2rgb, rgb2gray, label2rgb, rgb2hsv, gray2rgb
 from skimage.future import graph
-from PIL import Image as PImage
 from functools import wraps
 from array import array
 import mido
@@ -38,10 +41,14 @@ outport = mido.open_output('ILIAD - ImgTools', virtual=True, autoreset=True)
 run_dict = {'v':0}
 image_file_dict = {'image_file':"", 'orig_image':""}
 channel_dict = {'channel':1}
-cc_dict = {'cc':16}
+tv_props = {'func':None, 'block_length':0, 'block_width':0, 'type':'lin_horizontal', 'block_depth':0}
+tv_wid_list = []
 
-logo = Image(source='../assets/img_tools_logo.png',pos_hint={'x': 0.19, 'y': 0.50},keep_ratio=True, size_hint=(0.20, 0.10))
+logo = Image(source='../assets/img_tools_logo.png',pos_hint={'x': 0.19, 'y': 0.48},keep_ratio=True, size_hint=(0.20, 0.12))
 
+with logo.canvas:
+    Line(points=[385, 600, 385, 00], width=0.25)
+    Line(points=[385, 450, 500, 450], width=0.25)
 
 TEMP_PATH = "../assets/"
 
@@ -67,7 +74,7 @@ send_status_label = Label(text='Press Send', font_size=17, pos_hint={'x': 0.87, 
 
 file_selector = Button(text = 'Select Image', pos_hint={'x': 0.01, 'y': 0.50},size_hint=(0.12, 0.07))
 
-reset_button = Button(text='Reset', font_size=14, pos_hint={'x': 0.87, 'y': 0.15},size_hint=(0.12, 0.07))
+reset_button = Button(text='Reset', font_size=14, pos_hint={'x': 0.73, 'y': 0.05},size_hint=(0.12, 0.07))
 
 # Buttons for the colour preference image-
 
@@ -104,6 +111,8 @@ transform_dropdown = Spinner(
 	values=('Swirl','Wave'),
 	# just for positioning in our example
 	pos_hint={'x': 0.32, 'y': 0.21}, size_hint=(.15, .10))
+
+
 
 def OnTransformDropdownSelect(spinner, text):
 	if text=='Swirl':
@@ -216,6 +225,34 @@ saturation_slider_label = Label(text='Saturation', font_size=17, pos_hint={'x': 
 
 
 
+image_traversal_label = Label(text='Image Traversal', font_size=22, pos_hint={'x': 0.70, 'y': 0.48}, size_hint=(.05, .17), bold = True)
+
+
+tv_linear_button = CheckBox()
+tv_linear_button.pos_hint = {'x': 0.60, 'y': 0.40}
+tv_linear_button.size_hint = (0.05, 0.17)
+tv_linear_button.group = 'tv_pref'
+tv_linear_button.active = False
+tv_linear_button.color = [128, 128, 128, 1]
+tv_block_button = CheckBox()
+tv_block_button.pos_hint = {'x': 0.80, 'y': 0.40}
+tv_block_button.size_hint = (0.05, 0.17)
+tv_block_button.group = 'tv_pref'
+tv_block_button.active = False
+tv_block_button.color = [128, 128, 128, 1]
+# tv_skip_button = CheckBox()
+# tv_skip_button.pos_hint = {'x': 0.85, 'y': 0.40}
+# tv_skip_button.size_hint = (0.05, 0.17)
+# tv_skip_button.group = 'tv_pref'
+# tv_skip_button.active = False
+# tv_skip_button.color = [128, 128, 128, 1]
+
+tv_linear_label = Label(text='Linear', font_size=14, pos_hint={'x': 0.60, 'y': 0.35}, size_hint=(.05, .17))
+tv_block_label = Label(text='Block', font_size=14, pos_hint={'x': 0.80, 'y': 0.35}, size_hint=(.05, .17))
+# tv_skip_label = Label(text='Skip', font_size=14, pos_hint={'x': 0.85, 'y': 0.35}, size_hint=(.05, .17))
+
+# tv_fix = Button(text='Fix Traversal', font_size=14, pos_hint={'x':0.87, 'y': 0.18},size_hint=(0.12, 0.07))
+
 
 
 
@@ -230,6 +267,12 @@ def send_MIDI(r, g=None, b=None):
 		outport.send(mido.Message('control_change', channel=channel-1, control=16, value=r))
 		outport.send(mido.Message('control_change', channel=channel-1, control=17, value=g))
 		outport.send(mido.Message('control_change', channel=channel-1, control=18, value=b))
+
+	elif g is not None:
+
+		outport.send(mido.Message('control_change', channel=channel-1, control=16, value=r))
+		outport.send(mido.Message('control_change', channel=channel-1, control=17, value=g))
+
 
 	else:
 
@@ -266,20 +309,59 @@ def read_image():
 		if type(temp[0,0]) == np.float64:
 			temp = temp * 255
 
-	
-	print(temp)
-	for i in range(len(temp)):
-		for j in range(len(temp[0])):
-			yield run_dict["v"]  # use yield to "sleep"
-			if len(temp.shape) == 3:
-				r = np.clip(int(temp[i,j,0]),0,127)
-				g = np.clip(int(temp[i,j,1]),0,127)
-				b = np.clip(int(temp[i,j,2]),0,127)
-				print(r,g,b)
-				send_MIDI(r,g,b)
-			elif len(temp.shape) == 2:
-				print(temp[i,j])
-				send_MIDI(np.clip(int(temp[i,j]),0,127))
+	# Will check for traversal type here
+
+	if tv_props['type'] == 'lin_horizontal':
+
+		for i in range(len(temp)):
+			for j in range(len(temp[0])):
+				yield run_dict["v"]  # use yield to "sleep"
+				if len(temp.shape) == 3:
+					if len(temp[i,j])==3:
+						r = np.clip(int(temp[i,j,0]),0,127)
+						g = np.clip(int(temp[i,j,1]),0,127)
+						b = np.clip(int(temp[i,j,2]),0,127)
+						print(r,g,b)
+						send_MIDI(r,g,b)
+					elif len(temp[i,j]) == 2:
+						r = np.clip(int(temp[i,j,0]),0,127)
+						g = np.clip(int(temp[i,j,1]),0,127)
+						send_MIDI(r,g)
+					else:
+						for k in range(len(temp[i,j])):
+							r =  np.clip(int(temp[i,j,k]),0,127)
+							send_MIDI(r)
+
+				elif len(temp.shape) == 2:
+					print(temp[i,j])
+					send_MIDI(np.clip(int(temp[i,j]),0,127))
+
+	elif tv_props['type'] == 'lin_vertical':
+		for i in range(len(temp)):
+			for j in range(len(temp[0,0])):
+				yield run_dict["v"]  # use yield to "sleep"
+				for k in range(len(temp[0])):
+					r =  np.clip(int(temp[i,k,j]),0,127)
+					print(r)
+					send_MIDI(r)
+
+	elif tv_props['type'] == 'block':
+		print('TRYING TO SEND BLOCK DATA')
+		block_arr = block_reduce(image=temp,\
+			block_size=(tv_props['block_depth'],tv_props['block_length'],tv_props['block_width']),\
+			func = tv_props['func'])
+		print(len(block_arr))
+		print(len(block_arr[0]))
+		print(len(block_arr[0][0]))
+		for i in range(len(block_arr)):
+			for j in range(len(block_arr[0])):
+				yield run_dict["v"]  # use yield to "sleep"
+				for k in range(len(block_arr[0][0])):
+					r =  np.clip(int(block_arr[i,j,k]),0,127)
+					send_MIDI(r)
+
+
+
 
 	send_status_label.text = 'Finished!'
 	send_status_label.color = [0,128,0,1]
@@ -315,6 +397,7 @@ def OnResetButtonPressed(instance):
 
 
 def OnCPInvertedButtonPressed(instance, value):
+	print(value, instance)
 	print('Pressed inverted')
 	print('ENTERED')
 	image_shape = image_file.shape
@@ -342,7 +425,7 @@ def OnCPGrayscaleButtonPressed(instance, value):
 
 	print('GRASCALE HERE --------')
 
-	image_file_dict['image_file'] = rgb2gray(image_file)
+	image_file_dict['image_file'] = gray2rgb(rgb2gray(image_file))
 
 	# # buf1 = cv2.flip(image, 0)
 	# buf = image_file_gray.tostring()
@@ -510,6 +593,150 @@ def OnSaturationSliderChange(instance,value):
 	image_texture.blit_buffer(np.flip(np.float32(temp),axis=0).ravel(), colorfmt='rgb', bufferfmt='float')
 	disp_img.texture = image_texture
 
+def OnTVLinearText(spinner, text):
+	if text == 'Horizontal':
+		tv_props['func'] = None
+		tv_props['block_length'] = 0
+		tv_props['block_width'] = 0
+		tv_props['type'] = 'lin_horizontal'
+	elif text == 'Vertical':
+		tv_props['func'] = None
+		tv_props['block_length'] = 0
+		tv_props['block_width'] = 0
+		tv_props['type'] = 'lin_vertical'
+
+
+def OnTVLinearButtonPressed(instance, value):
+	if len(tv_wid_list)!=0:
+		#Empty Widget List
+		for wid in tv_wid_list:
+			FLOAT_LAYOUT.remove_widget(wid)
+		del tv_wid_list[:]
+
+	lin_tv_label = Label(text='Linear Traversal Type', font_size=17, pos_hint={'x': 0.68, 'y': 0.30}, size_hint=(0.12, 0.07))
+
+	tv_linear_dropdown = Spinner(
+		# default value shown
+		text='Select Traversal',
+		# available values
+		values=('Horizontal', 'Vertical'),
+		# just for positioning in our example
+		pos_hint={'x': 0.66, 'y': 0.23}, size_hint=(0.15, 0.07))
+
+	tv_wid_list.append(lin_tv_label)
+	tv_wid_list.append(tv_linear_dropdown)
+
+	FLOAT_LAYOUT.add_widget(lin_tv_label)
+	FLOAT_LAYOUT.add_widget(tv_linear_dropdown)
+	tv_linear_dropdown.bind(text=OnTVLinearText)
+
+def OnTVBlockDepthText(spinner, text):
+	tv_props['block_depth'] = int(text)
+
+def OnTVBlockLengthText(spinner, text):
+	tv_props['block_length'] = int(text)
+
+def OnTVBlockWidthText(spinner, text):
+	tv_props['block_width'] = int(text)
+
+def OnTVBlockFuncText(spinner, text):
+	if text == 'Maximum':
+		tv_props['func'] = np.max
+	elif text == 'Minimum':
+		tv_props['func'] = np.min
+	elif text == 'Average':
+		tv_props['func'] = np.mean
+	elif text == 'Median':
+		tv_props['func'] = np.median
+	elif text == 'Sum':
+		tv_props['func'] = np.sum
+
+ 
+
+def OnTVBlockButtonPressed(instance, value):
+	if len(tv_wid_list)!=0:
+		#Empty Widget List
+		for wid in tv_wid_list:
+			FLOAT_LAYOUT.remove_widget(wid)
+		del tv_wid_list[:]
+
+	depth_values = []
+	for i in range(len(image_file_dict['image_file'])):
+		depth_values.append(str(i+1))
+
+	depth_input_label = Label(text='Depth Size', font_size=17, pos_hint={'x': 0.55, 'y': 0.37}, size_hint=(0.10, 0.03))
+
+	depth_input_dropdown = Spinner(
+		# default value shown
+		text='Select Depth',
+		# available values
+		values=depth_values,
+		# just for positioning in our example
+		pos_hint={'x': 0.52, 'y': 0.29}, size_hint=(0.15, 0.07))
+
+	length_values = []	
+	for i in range(len(image_file_dict['image_file'][0])):
+		length_values.append(str(i+1))
+
+	length_input_label = Label(text='Length Size', font_size=17, pos_hint={'x': 0.71, 'y': 0.37}, size_hint=(0.10, 0.03))
+
+	length_input_dropdown = Spinner(
+		# default value shown
+		text='Select Length',
+		# available values
+		values=length_values,
+		# just for positioning in our example
+		pos_hint={'x': 0.68, 'y': 0.29}, size_hint=(0.15, 0.07))
+
+	width_values = []	
+	for i in range(len(image_file_dict['image_file'][0][0])):
+		width_values.append(str(i+1))
+
+	width_input_label = Label(text='Width Size', font_size=17, pos_hint={'x': 0.85, 'y': 0.37}, size_hint=(0.10, 0.03))
+
+	width_input_dropdown = Spinner(
+		# default value shown
+		text='Select Width',
+		# available values
+		values=width_values,
+		# just for positioning in our example
+		pos_hint={'x': 0.84, 'y': 0.29}, size_hint=(0.15, 0.07))
+
+	func_input_label = Label(text='Aggregation Function', font_size=17, pos_hint={'x': 0.70, 'y': 0.25}, size_hint=(0.10, 0.03))
+
+	func_input_dropdown = Spinner(
+		# default value shown
+		text='Select Function',
+		# available values
+		values=('Maximum','Minimum','Average','Median','Sum'),
+		# just for positioning in our example
+		pos_hint={'x': 0.67, 'y': 0.17}, size_hint=(0.15, 0.07))
+
+
+	tv_wid_list.append(depth_input_label)
+	tv_wid_list.append(depth_input_dropdown)
+	tv_wid_list.append(length_input_label)
+	tv_wid_list.append(length_input_dropdown)
+	tv_wid_list.append(width_input_label)
+	tv_wid_list.append(width_input_dropdown)
+	tv_wid_list.append(func_input_label)
+	tv_wid_list.append(func_input_dropdown)
+
+	FLOAT_LAYOUT.add_widget(depth_input_label)
+	FLOAT_LAYOUT.add_widget(depth_input_dropdown)
+	FLOAT_LAYOUT.add_widget(length_input_label)
+	FLOAT_LAYOUT.add_widget(length_input_dropdown)
+	FLOAT_LAYOUT.add_widget(width_input_label)
+	FLOAT_LAYOUT.add_widget(width_input_dropdown)
+	FLOAT_LAYOUT.add_widget(func_input_label)
+	FLOAT_LAYOUT.add_widget(func_input_dropdown)
+
+	depth_input_dropdown.bind(text=OnTVBlockDepthText)
+	length_input_dropdown.bind(text=OnTVBlockLengthText)
+	width_input_dropdown.bind(text=OnTVBlockWidthText)
+	func_input_dropdown.bind(text=OnTVBlockFuncText)
+
+	tv_props['type'] = 'block'
 
 
 
@@ -585,6 +812,11 @@ class app(App):
 			cp_grayscale_button.disabled = False
 			cp_animated_button.disabled = False
 			transform_dropdown.disabled = False
+			tv_linear_button.disabled = False
+			tv_block_button.disabled = False
+			# tv_skip_button.disabled = False
+			# tv_fix.disabled = False
+
 
 
 	def build(self):
@@ -628,6 +860,16 @@ class app(App):
 		FLOAT_LAYOUT.add_widget(transformation_label)
 		FLOAT_LAYOUT.add_widget(transform_dropdown)
 
+		FLOAT_LAYOUT.add_widget(image_traversal_label)
+		FLOAT_LAYOUT.add_widget(tv_linear_button)
+		FLOAT_LAYOUT.add_widget(tv_block_button)
+		# FLOAT_LAYOUT.add_widget(tv_skip_button)
+
+		FLOAT_LAYOUT.add_widget(tv_linear_label)
+		FLOAT_LAYOUT.add_widget(tv_block_label)
+		# FLOAT_LAYOUT.add_widget(tv_skip_label)
+		# FLOAT_LAYOUT.add_widget(tv_fix)
+
 
 		speed_slider.bind(value=OnSpeedSliderValueChange)
 		send_button.bind(on_press=OnSendButtonPressed)
@@ -649,6 +891,10 @@ class app(App):
 		cp_grayscale_button.disabled = True
 		cp_animated_button.disabled = True
 		transform_dropdown.disabled = True
+		tv_linear_button.disabled = True
+		tv_block_button.disabled = True
+		# tv_skip_button.disabled = True
+		# tv_fix.disabled = True
 
 		# Colour Preferences buttons
 
@@ -658,6 +904,9 @@ class app(App):
 
 		hue_slider.bind(value=OnHueSliderChange)
 		saturation_slider.bind(value=OnSaturationSliderChange)
+
+		tv_linear_button.bind(active=OnTVLinearButtonPressed)
+		tv_block_button.bind(active=OnTVBlockButtonPressed)
 
 		
 		return FLOAT_LAYOUT
