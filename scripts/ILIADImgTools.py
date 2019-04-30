@@ -54,7 +54,7 @@ FONT = '../assets/NotoSans-Light.ttf'
 
 
 
-class PanelBuilderApp(App):  # display the welcome screen
+class ILIADImgTools(App):  # display the welcome screen
 	def build(self):
 		sm = ScreenManager()
 		sm.add_widget(WelcomeScreen(name='welcomeScreen'))
@@ -1015,4 +1015,4 @@ class FunctionScreen(Screen):  #For later function navigation
 
 
 if __name__ == '__main__':
-	PanelBuilderApp().run()
+	ILIADImgTools().run()
