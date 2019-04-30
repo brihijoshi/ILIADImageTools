@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Developed by Brihi Joshi
 """
@@ -26,6 +27,7 @@ from kivy.uix.textinput import TextInput
 from skimage.transform import swirl, PiecewiseAffineTransform, warp
 from skimage import util
 from skimage.measure import block_reduce
+import emoji
 import numpy as np
 from skimage import io, segmentation
 from skimage.color import convert_colorspace, rgba2rgb, hsv2rgb, rgb2gray, label2rgb, rgb2hsv, gray2rgb
@@ -35,6 +37,7 @@ from array import array
 import mido
 import random
 import copy
+
 
 
 outport = mido.open_output('ILIAD - ImgTools', virtual=True, autoreset=True)
@@ -47,8 +50,10 @@ tv_wid_list = []
 logo = Image(source='../assets/img_tools_logo.png',pos_hint={'x': 0.19, 'y': 0.48},keep_ratio=True, size_hint=(0.20, 0.12))
 
 with logo.canvas:
-    Line(points=[385, 600, 385, 00], width=0.25)
-    Line(points=[385, 450, 500, 450], width=0.25)
+	Line(points=[385, 600, 385, 85], width=0.25)
+	Line(points=[385, 370, 800, 370], width=0.25)
+	Line(points=[385, 85, 800, 85], width=0.25)
+	Line(points=[0, 85, 385, 85], width=0.25)
 
 TEMP_PATH = "../assets/"
 
@@ -64,7 +69,7 @@ speed_slider = Slider(min=0,
 		 )
 
 speed_slider_label = Label(text='Time Delay (in seconds) : ', font_size=17, pos_hint={'x': 0.47, 'y': 0.55}, size_hint=(.5, .8))
-speed_slider_value_label = Label(text='0.0', font_size=17, pos_hint={'x': 0.70, 'y': 0.55}, size_hint=(.3, .8), bold=True)
+speed_slider_value_label = Label(text='0.0', font_size=17, pos_hint={'x': 0.72, 'y': 0.55}, size_hint=(.3, .8), bold=True)
 
 
 # speed_slider = Slider(min=0, max=1, value=0.5, pos_hint={'x': 0.5, 'y': 0.4}, padding=2)
@@ -74,7 +79,7 @@ send_status_label = Label(text='Press Send', font_size=17, pos_hint={'x': 0.87, 
 
 file_selector = Button(text = 'Select Image', pos_hint={'x': 0.01, 'y': 0.50},size_hint=(0.12, 0.07))
 
-reset_button = Button(text='Reset', font_size=14, pos_hint={'x': 0.73, 'y': 0.05},size_hint=(0.12, 0.07))
+reset_button = Button(text='Reset', font_size=14, pos_hint={'x': 0.72, 'y': 0.05},size_hint=(0.12, 0.07))
 
 # Buttons for the colour preference image-
 
@@ -253,6 +258,7 @@ tv_block_label = Label(text='Block', font_size=14, pos_hint={'x': 0.80, 'y': 0.3
 
 # tv_fix = Button(text='Fix Traversal', font_size=14, pos_hint={'x':0.87, 'y': 0.18},size_hint=(0.12, 0.07))
 
+# mwl_label = Label(text='Made with ❤️ \nby Brihi Joshi', font_size=14, pos_hint={'x': 0.60, 'y': 0.01}, size_hint=(.05, .17), font_name='emoji')
 
 
 
@@ -746,7 +752,7 @@ def OnTVBlockButtonPressed(instance, value):
 # 	send_status_label.color = [255,0,0,1]
 
 
-class app(App):
+class ILIADTools(App):
 	def create_popup(self, instance):
 		# create popup layout
 		content = BoxLayout(orientation='vertical', spacing=5)
@@ -867,6 +873,7 @@ class app(App):
 
 		FLOAT_LAYOUT.add_widget(tv_linear_label)
 		FLOAT_LAYOUT.add_widget(tv_block_label)
+		# FLOAT_LAYOUT.add_widget(mwl_label)
 		# FLOAT_LAYOUT.add_widget(tv_skip_label)
 		# FLOAT_LAYOUT.add_widget(tv_fix)
 
@@ -908,13 +915,10 @@ class app(App):
 		tv_linear_button.bind(active=OnTVLinearButtonPressed)
 		tv_block_button.bind(active=OnTVBlockButtonPressed)
 
-		
-		return FLOAT_LAYOUT
 
-	# def calculate(self, *args):
-	# 	print(args)
+		return FLOAT_LAYOUT
 
 
 if __name__ == '__main__':
 
-	app().run()
+	ILIADTools().run()
