@@ -1,4 +1,4 @@
- ![ILIAD Image Tools](./ILIADImageTools/assets/img_tools_logo.png)
+ ![ILIAD Image Tools](ILIADImageTools/assets/img_tools_logo.png)
  
  ### _This work is developed as a Proof of Concept for my Independent Project with [Dr. Timothy Scott Moyers Jr.](http://www.timmoyers.com/)_.
  
